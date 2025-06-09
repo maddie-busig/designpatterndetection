@@ -4,7 +4,17 @@ This application identifies design pattern instances from a given dataset. Curre
 
 #### Note: The files below require the matplotlib package for plotting and readable output
 
-## Dependencies
+## Python Version and Dependencies
+
+Tested using python 2.7.18 installed using PyEnv. If you're having trouble getting
+PyEnv to compile 2.7.18, try disabling warnings and using the C99 standard:
+
+```
+CFLAGS='-w -std=c99' pyenv install 2.7.18
+```
+
+This repository contains a `.python-version` file that PyEnv will detect if you're
+running from the same directory.
 
 Dependency versions listed are the versions that were tested with. Other versions might work.
 
