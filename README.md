@@ -4,6 +4,23 @@ This application identifies design pattern instances from a given dataset. Curre
 
 #### Note: The files below require the matplotlib package for plotting and readable output
 
+## Dependencies
+
+Dependency versions listed are the versions that were tested with. Other versions might work.
+
+ - gensim (3.8.3)
+ - tqdm (4.64.1)
+ - pandas (0.24.2)
+ - scikit-learn (0.20.4)
+ - plyj (git)
+
+Note: The latest plyj version on PyPI is version 0.1. DPDf requires the 0.2 development version of plyj that introduces ExpressionStatement (seemingly abandoned, last update ~10yrs ago).
+The plyj source is at the repository here, <https://github.com/musiKk/plyj>. EX installing this version:
+
+```
+pip install git+https://github.com/musiKk/plyj.git#egg=plyj
+```
+
 ## Data Source
 - [Java file Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/)
 
