@@ -32,8 +32,8 @@ assert algorithm in ["RF","SVM","GBTREE","ADABOOST","ADABOOST_LOGISTIC","LOGISTI
 print "Algorithm Used = %s"%(algorithm)
 
 # Filename of the dataset
-#data_file = "dataset.csv"
-data_file = "P-MARt-dataset.csv"
+data_file = "dataset.csv"
+#data_file = "P-MARt-dataset.csv"
 
 # Read data from a csv file into a pandas dataframe
 data = pd.read_csv(data_file)
