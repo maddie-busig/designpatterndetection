@@ -20,13 +20,6 @@ import sys
 import random
 import re
 
-# modified to run on MacOS
-import matplotlib
-matplotlib.rcParams['backend'] = 'TkAgg'
-from matplotlib import pyplot as plt	# Used for plotting
-
-import seaborn as sns
-
 # initialization of the RNG
 np.random.seed(2016)
 
@@ -190,66 +183,6 @@ with open("results/confusion_matrix_%s.csv"%(algorithm), "w") as f:
 	for row in cm:
 		f.write("{0}\n".format(",".join([str(i) for i in row])))
 
-#--------------- Plot the confusion matrix ---------------#
-
-
-precision_recall_single_plot = True
-
-df1 = pd.DataFrame({"Design Pattern":label_lookup,"value":precision,"Metric":["Precision"]*len(label_lookup)})
-df2 = pd.DataFrame({"Design Pattern": label_lookup, "value": recall, "Metric": ["Recall"] * len(label_lookup)})
-df_p_r = pd.concat((df1,df2),ignore_index=True)
-f, (ax1) = plt.subplots(1, 1, figsize=(8, 9))
-sns.barplot(x="Design Pattern",y="value",hue="Metric",data=df_p_r,ax=ax1)
-plt.ylim((0,1.15))
-plt.legend(loc='upper right')
-ax1.set_title("Precision = %2.2f%%  Recall = %.2f%%"%(precision_final*100,recall_final*100))
-ax1.set_xlabel("Design Pattern")
-ax1.set_ylabel("Precision & Recall")
-plt.xticks(rotation=45, ha="right")
-plt.savefig("results/%s Precision-Recall Scores" % (algorithm))
-plt.show()
-
-cmap = plt.get_cmap('Blues')	# Colour scheme
-
-# Set the plotting environment
-fig, ax = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True)
-im = ax.imshow(cm, cmap=cmap)	# Plot the confusion matrix
-
-# Show all ticks
-ax.set_xticks(np.arange(len(cm[0])))
-ax.set_yticks(np.arange(len(cm[1])))
-
-# Label each axis tick
-ax.set_xticklabels(label_lookup)
-ax.set_yticklabels(label_lookup)
-
-# Label each axis
-ax.set_ylabel("True Label")
-ax.set_xlabel("Predicted label")
-# uncomment this line to print the accuracy, Precision and recall values.
-#ax.set_xlabel("Predicted label\n\nAccuracy={:2.1f}%   Precision={:2.1f}%   Recall={:2.1f}%".format(balanced_accuracy*100, precision_final*100, recall_final*100))
-# ax.set_xlabel("Predicted label\n\nMisclassification={:2.2f}%".format(misclassification*100))
-# Rotate the tick labels and set their alignment.
-plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-         rotation_mode="anchor")
-
-# Draw a color bar in the figure
-# ax.figure.colorbar(im)
-
-# Loop over the data (confusion matrix) and label pixel with text
-thresh = cm.max() / 2
-for i in range(len(cm[0])):
-    for j in range(len(cm[1])):
-        text = ax.text(i, j, cm[i, j],
-                       ha="center", va="center", 
-					   color="white" if cm[i, j] > thresh else "black")
-
-# Uncomment below line to add title to plot
-# ax.set_title("Design Pattern %s Classification Confusion Matrix"%(algorithm))
-fig.tight_layout()
-plt.savefig("results/%s Classification"%(algorithm))
-plt.show()
-#---------------------------------------------------------#
-
 classification_report_df = pd.DataFrame({"labels":label_lookup,"precision":precision,"recall":recall,"fscore":fscore,"support":support})
 classification_report_df.to_csv("results/evaluation_%s.csv"%(algorithm),index=False)
+
