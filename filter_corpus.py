@@ -43,9 +43,9 @@ def build_corpus(input_corpus_dir, filter_dataframe, output_corpus_dir):
     if not os.path.isdir(output_corpus_dir):
         os.mkdir(output_corpus_dir)
 
-    init_data = {property_project: [], property_class: [], property_pattern: []}
-    columns = [ property_project, property_class, property_pattern ]
-    output_dataframe = pandas.DataFrame(init_data, columns=columns)
+    output_labels_init = {property_project: [], property_class: [], property_pattern: []}
+    output_labels_cols = [ property_project, property_class, property_pattern ]
+    output_labels_dataframe = pandas.DataFrame(output_labels_init, columns=output_labels_cols)
 
     for index,row in filter_dataframe.iterrows():
         print row[property_project], ":", row[property_class], "--", row[property_pattern]
@@ -82,12 +82,12 @@ def build_corpus(input_corpus_dir, filter_dataframe, output_corpus_dir):
             idx += 1
 
         # Add new entry to filtered corpus list
-        num_rows = len(output_dataframe)
-        output_dataframe.loc[num_rows] = [ project_name, class_name, pattern_name ]
+        num_rows = len(output_labels_dataframe)
+        output_labels_dataframe.loc[num_rows] = [ project_name, class_name, pattern_name ]
     
         added[project_name].append(class_name)
 
-    return output_dataframe, missing, duplicates
+    return output_labels_dataframe, missing, duplicates
 
 def main():
     if len(sys.argv) < 3:
