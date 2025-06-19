@@ -46,6 +46,7 @@ def path_to_fully_qualified_name(corpus_dir, project_name, class_path):
     project_dir = os.path.join(corpus_dir, project_name)
 
     rel_path = os.path.relpath(class_path, project_dir)
+    rel_path, ext = os.path.splitext(rel_path)
 
     fq_name = rel_path.replace('/', '.')
     print "fqname:", fq_name
