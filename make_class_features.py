@@ -9,9 +9,18 @@ from verbose_tools import get_classes
 from verbose_tools import get_classes_properties
 import logging as log
 from tqdm import tqdm
+from itertools import chain
 
 NDIM = 100                 ## currently set to 100 may change it to other value.
-verbose_root = sys.argv[1]
+
+if len(sys.argv) < 4:
+    print "Usage: make_class_features.py DATA_FILE OUT_DATASET VERBOSE_DIRS..."
+    exit(-1)
+
+data_file = sys.argv[1]
+out_dataset_file = sys.argv[2]
+
+verbose_roots = sys.argv[3:]
 log.basicConfig(level=log.DEBUG, filename='make_class_features.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = log.getLogger(__name__)
 
@@ -19,8 +28,14 @@ logger.info("parsing projects")
 sentences = []
 patterns = dict()
 #data_file = "output-refined.csv"
-#data_file = "input-1300.csv"
-data_file = "p-mart-output-final.csv"
+#data_file = "input3-1300.csv"
+#data_file = "ghidra_classes.csv"
+#data_file = "input.csv"
+#data_file = "extended_labels.csv"
+
+print "Using class index:", data_file
+print "Output to dataset:", out_dataset_file
+print "Verbose directories:", verbose_roots
 
 with open(data_file) as f:
     for line in f:
@@ -32,13 +47,16 @@ file_data_store = dict()
 
 # Iterate through all files in the input folder (verbose_root)
 # for root, dirs, files in tqdm(os.walk(verbose_root)):
-for root, dirs, files in os.walk(verbose_root):
+
+# Scuffed fix to allow multiple verbose roots passed in terminal
+for root, dirs, files in chain.from_iterable(os.walk(root) for root in verbose_roots):
     # If the are no files in the verbose root folder
     if files is None:
         logger.error("No files found in input directory")
         exit()
     for f in files:
         if ".verbose" in f:
+            print "Processing file", f, "in root", root
             file_data_store[f]=dict()
             proj_name = splitext(f)[0]
             file_data_store[f]["project_name"] = proj_name
@@ -130,8 +148,9 @@ import pandas as pd
 df = pd.DataFrame.from_records(saved_items_dicts)
 
 #data_file = "output-refined.csv"
-#data_file = "input-1300.csv"
-data_file = "p-mart-output-final.csv"
+#data_file = "input3-1300.csv"
+#data_file = "ghidra_classes.csv"
+#data_file = "extended_labels.csv"
 # patterns = pd.read_csv(data_file,header=None,names=["project_name","class_name","pattern","url"])
 patterns = pd.read_csv(data_file,header=None,names=["project_name","class_name","pattern"])
 print(patterns.shape)
@@ -148,4 +167,6 @@ print(dataset.shape)
 #dataset.drop_duplicates(["project_name","class_name"],inplace=True)
 #print(dataset.shape)
 #dataset.to_csv("dataset.csv",index=False)
-dataset.to_csv("P-MARt-dataset.csv",index=False)
+#dataset.to_csv("mega_dataset2.csv",index=False)
+dataset.to_csv(out_dataset_file,index=False)
+#dataset.to_csv("dataset_filtered_ftests_supp.csv",index=False)
