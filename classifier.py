@@ -19,12 +19,19 @@ import sys
 # import pprint		# Used for pretty printing dictionaries
 import random
 import re
+import os
 
 # initialization of the RNG
 np.random.seed(2016)
 
-if len(sys.argv)==2:
-    algorithm = sys.argv[1]
+# Train dataset
+data_file = sys.argv[1]
+# Input dataset
+input_file = sys.argv[2]
+results_dir = sys.argv[3]
+
+if len(sys.argv)==5:
+    algorithm = sys.argv[4]
 else:
     algorithm = "RF"
 
@@ -32,7 +39,10 @@ assert algorithm in ["RF","SVM","GBTREE","ADABOOST","ADABOOST_LOGISTIC","LOGISTI
 print "Algorithm Used = %s"%(algorithm)
 
 # Filename of the dataset
-data_file = "dataset.csv"
+#data_file = "final_dataset.csv"
+#data_file = "datasets/dataset_input-1300_ftests_supp.csv"
+#data_file = "mega_dataset2.csv"
+#input_file = "ghidra_dataset.csv"
 #data_file = "P-MARt-dataset.csv"
 
 # Read data from a csv file into a pandas dataframe
@@ -134,6 +144,7 @@ elif algorithm=="EXTRA_TREES":
 skf = StratifiedKFold(n_splits=10)
 cv_results = []
 for train_index, test_index in skf.split(X, y):
+    print "Training!"
     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
     r = train_test_get_metrics(model_builder,X_train, X_test, y_train, y_test)
@@ -175,7 +186,10 @@ def summarise_cv_results(cv_results):
 cm, accuracy, balanced_accuracy, misclassification, precision, recall, fscore, support, precision_final, recall_final, fscore_final = summarise_cv_results(cv_results)
 
 # Save the confusion matrix to file
-with open("results/confusion_matrix_%s.csv"%(algorithm), "w") as f:
+confusion_mat_file = os.path.join(results_dir, "confusion_matrix.csv")
+evaluation_file = os.path.join(results_dir, "evaluation.csv")
+
+with open(confusion_mat_file, "w") as f:
 	ordered_patterns = []
 	for i in range(len(cm[0])):
 		ordered_patterns.append(label_lookup[i])
@@ -184,5 +198,47 @@ with open("results/confusion_matrix_%s.csv"%(algorithm), "w") as f:
 		f.write("{0}\n".format(",".join([str(i) for i in row])))
 
 classification_report_df = pd.DataFrame({"labels":label_lookup,"precision":precision,"recall":recall,"fscore":fscore,"support":support})
-classification_report_df.to_csv("results/evaluation_%s.csv"%(algorithm),index=False)
+classification_report_df.to_csv(evaluation_file,index=False)
+
+# --- PROCESSS INPUT ---
+
+print "Processing input data"
+
+# Copying same processing that's done on the training dataset
+# I guess \(o~o)"
+input_data = pd.read_csv(input_file)
+#print input_data.columns
+output_data = pd.DataFrame(input_data, columns=["project_name", "class_name"])
+
+input_data["implements"] = input_data["implements"].fillna(False)
+
+# strip the project, class name and design pattern label
+input_X = input_data.drop(['pattern','project_name','class_name',
+			   'class_implements_last_name','class_last_name','class_last_name_is_different',
+			   'implements_name'], axis=1)	# Keep only feature columns for independent vars (x)
+input_X.fillna(0,inplace=True)
+
+train_X = X
+train_y = y
+
+print "Training model"
+
+model = model_builder()
+model.fit(train_X, train_y)
+
+print "Predicting patterns"
+
+pred_y = model.predict(input_X)
+
+print "Writing output"
+
+output_data['num_pattern'] = pred_y
+
+output_data['pattern'] = le.inverse_transform(pred_y)
+
+print "Input shape", input_X.shape
+print "Output length", output_data.shape
+
+predictions_file = os.path.join(results_dir, "predictions.csv")
+output_data.to_csv(predictions_file, index=False)
 
