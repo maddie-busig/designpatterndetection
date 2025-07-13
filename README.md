@@ -31,6 +31,30 @@ The plyj source is at the repository here, <https://github.com/musiKk/plyj>. EX 
 pip install git+https://github.com/musiKk/plyj.git#egg=plyj
 ```
 
+### Predict Patterns
+
+`run_split.sh` contains an example of how to obtain predicted design patterns for
+each class in a set of input projects. It is written to run on splits of the input
+project set, so larger sets can be run in batches and parallelized. These splits
+can be generated using `shuffle.sh`.
+
+This script assumes that the verbose output of the training corpus has already been
+generated, and is located in the folder `built_corpus_verbose` by default. Additionally,
+a list of design patterns located in the training set needs to be provided, by default
+this is `input-1300.csv`.
+
+For each of the splits, an overview of the process is:
+
+- Filter the input projects to only classes (see `build_corpus.py`)
+- Build verbose output of input projects (see `detector.py`)
+- Create an index of classes from the output summary (see `corpus_summary_to_index.sh`)
+- Combine the training and input indexes together. This is needed because we vectorize
+the training and input data together, then separate the output. (see lines #14-16 of `run_split.sh`)
+- Vectorize the verbose output (see `make_class_features.py`)
+- Split the resulting dataset into training/input (see `split_dataset.py`)
+- Generate predictions (see `classifier.py`)
+
+
 ## Data Source
 - [Java file Corpus](http://groups.inf.ed.ac.uk/cup/javaGithub/)
 
